@@ -1,12 +1,18 @@
 using System;
 
-namespace blueprint
+namespace Blueprint.VisualStudio
 {
+
     class Program
     {
-        public static void Main()
+        public static void Main(string[] args)
         {
-            System.Console.Write("test");
+            Console.WriteLine("Blueprint.VisualStudio");
+
+            string solutionFile = @"E:\depot_git\archive\Bloody\Bloody.Engine.sln";
+
+            SolutionConverter converter = new SolutionConverter();
+            converter.ConvertSolution(solutionFile);
         }
     }
 }
