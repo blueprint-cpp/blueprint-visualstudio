@@ -2,17 +2,27 @@ using System;
 
 namespace Blueprint.VisualStudio
 {
-
     class Program
     {
         public static void Main(string[] args)
         {
             Console.WriteLine("Blueprint.VisualStudio");
 
-            string solutionFile = @"E:\depot_git\archive\Bloody\Bloody.Engine.sln";
+            if (args.Length > 0)
+            {
+                string solutionFile = args[0];
 
-            SolutionConverter converter = new SolutionConverter();
-            converter.ConvertSolution(solutionFile);
+                Console.WriteLine("Filename: {0}", solutionFile);
+
+                SolutionImporter importer = new SolutionImporter();
+                Solution solution = importer.ImportSolution(solutionFile);
+
+                JsonExporter.ExportSolution(solution);
+            }
+            else
+            {
+                Console.WriteLine("Error: missing solution file argument");
+            }
         }
     }
 }
