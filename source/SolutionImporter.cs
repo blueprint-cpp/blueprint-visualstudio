@@ -77,8 +77,7 @@ namespace Blueprint.VisualStudio
                 File = projectFile
             };
 
-            //project.Configurations.Add(new Configuration() { Name = "Debug" });
-            //project.Configurations.Add(new Configuration() { Name = "Release" });
+            project.Configurations.Add(ImportConfiguration(msbuildProject));
 
             solution.Projects.Add(project);
 
@@ -103,6 +102,59 @@ namespace Blueprint.VisualStudio
             {
                 Console.WriteLine(">>> " + file);
             }
+        }
+
+        private Configuration ImportConfiguration(Microsoft.Build.Evaluation.Project msbuildProject)
+        {
+            Configuration config = new Configuration() { Name = "Release" };
+
+            var files = msbuildProject.GetItems("ClCompile");
+
+            config.Defines = ImportMetaData("PreprocessorDefinitions", files);
+            config.Includes = ImportMetaData("AdditionalIncludeDirectories", files);
+
+            foreach (var file in files)
+            {
+                if (file.DirectMetadata.FirstOrDefault(m => m.Name == "PrecompiledHeader") != null)
+                {
+                    config.PrecompiledHeader = NormalizePath(file.EvaluatedInclude);
+                }
+            }
+
+            return config;
+        }
+
+        private List<string> ImportMetaData(string metaData, ICollection<Microsoft.Build.Evaluation.ProjectItem> files)
+        {
+            var filesValues = new Dictionary<string, List<string>>();
+
+            foreach (var file in files)
+            {
+                foreach (var value in file.GetMetadataValue(metaData).Split(';'))
+                {
+                    if (!string.IsNullOrEmpty(value))
+                    {
+                        if (!filesValues.ContainsKey(value))
+                        {
+                            filesValues.Add(value, new List<string>());
+                        }
+
+                        filesValues[value].Add(file.EvaluatedInclude);
+                    }
+                }
+            }
+
+            var configValues = new List<string>();
+
+            foreach (var filesValue in filesValues)
+            {
+                if (filesValue.Value.Count == files.Count)
+                {
+                    configValues.Add(filesValue.Key);
+                }
+            }
+
+            return configValues;
         }
 
         private static string NormalizePath(string path)
