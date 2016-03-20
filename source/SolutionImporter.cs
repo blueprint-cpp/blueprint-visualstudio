@@ -60,6 +60,7 @@ namespace Blueprint.VisualStudio
         private void ImportProject(string solutionFile, string toolsVersion, Solution solution, Microsoft.Build.Evaluation.ProjectItem projectItem)
         {
             var projectFile = Path.Combine(Path.GetDirectoryName(solutionFile), projectItem.EvaluatedInclude);
+
             if (!File.Exists(projectFile))
             {
                 return;
@@ -87,12 +88,12 @@ namespace Blueprint.VisualStudio
 
             foreach (var item in msbuildProject.GetItems("ClInclude"))
             {
-                files.Add(NormalizePath(item.EvaluatedInclude));
+                files.Add(Path.GetFullPath(Path.Combine(msbuildProject.DirectoryPath, item.EvaluatedInclude)));
             }
 
             foreach (var item in msbuildProject.GetItems("ClCompile"))
             {
-                files.Add(NormalizePath(item.EvaluatedInclude));
+                files.Add(Path.GetFullPath(Path.Combine(msbuildProject.DirectoryPath, item.EvaluatedInclude)));
             }
 
             files.Sort();
@@ -111,13 +112,13 @@ namespace Blueprint.VisualStudio
             var files = msbuildProject.GetItems("ClCompile");
 
             config.Defines = ImportMetaData("PreprocessorDefinitions", files);
-            config.Includes = ImportMetaData("AdditionalIncludeDirectories", files);
+            config.Includes = ImportMetaData("AdditionalIncludeDirectories", files).ConvertAll(i => i);
 
             foreach (var file in files)
             {
                 if (file.DirectMetadata.FirstOrDefault(m => m.Name == "PrecompiledHeader") != null)
                 {
-                    config.PrecompiledHeader = NormalizePath(file.EvaluatedInclude);
+                    config.PrecompiledHeader = Path.GetFullPath(Path.Combine(msbuildProject.DirectoryPath, file.EvaluatedInclude));
                 }
             }
 
@@ -155,11 +156,6 @@ namespace Blueprint.VisualStudio
             }
 
             return configValues;
-        }
-
-        private static string NormalizePath(string path)
-        {
-            return path.Replace('\\', '/');
         }
     }
 }

@@ -10,6 +10,11 @@ namespace Blueprint.VisualStudio
 
         public List<Project> Projects = new List<Project>();
 
+        public void MakeRelative(string basePath)
+        {
+            Projects.ForEach(p => p.MakeRelative(basePath));
+        }
+
         public override string ToString()
         {
             return Name;

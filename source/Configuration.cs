@@ -12,6 +12,11 @@ namespace Blueprint.VisualStudio
         public List<string> Defines = new List<string>();
         public List<string> Includes = new List<string>();
 
+        public void MakeRelative(string basePath)
+        {
+            Includes = Includes.ConvertAll(i => Utility.MakePathRelative(basePath, i));
+        }
+
         public override string ToString()
         {
             return Name;

@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 
 namespace Blueprint.VisualStudio
 {
@@ -16,6 +17,8 @@ namespace Blueprint.VisualStudio
 
                 SolutionImporter importer = new SolutionImporter();
                 Solution solution = importer.ImportSolution(solutionFile);
+
+                //solution.MakeRelative(Directory.GetCurrentDirectory());
 
                 JsonExporter.ExportSolution(solution);
             }
