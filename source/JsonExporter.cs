@@ -24,8 +24,8 @@ namespace Blueprint.VisualStudio
                 jsonProjects.Add(project.Name + ".prj.json");
             }
 
-            jsonSolution.Add(new JProperty("solution", solution.Name));
-            jsonSolution.Add(new JProperty("solutionfile", solution.File.Replace('\\', '/')));
+            jsonSolution.Add(new JProperty("workspace", solution.Name));
+            jsonSolution.Add(new JProperty("workspaceFile", solution.File.Replace('\\', '/')));
             jsonSolution.Add(new JProperty("projects", jsonProjects));
 
             File.WriteAllText(solution.Name + ".wks.json", jsonSolution.ToString());
